@@ -1,8 +1,10 @@
 module Main exposing (main)
 
 import Browser
+import Css exposing (..)
 import Html.Styled exposing (Html, div, h1, img, text)
-import Html.Styled.Attributes exposing (src)
+import Html.Styled.Attributes exposing (css, id, src)
+import Time exposing (Posix)
 
 
 
@@ -10,12 +12,13 @@ import Html.Styled.Attributes exposing (src)
 
 
 type alias Model =
-    {}
+    { currentTime : Posix
+    }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( {}, Cmd.none )
+    ( { currentTime = Time.millisToPosix 0 }, Cmd.none )
 
 
 
@@ -24,11 +27,17 @@ init =
 
 type Msg
     = NoOp
+    | CurrentTime Posix
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        CurrentTime posix ->
+            ( { model | currentTime = posix }, Cmd.none )
+
+        NoOp ->
+            ( model, Cmd.none )
 
 
 
@@ -39,7 +48,19 @@ view : Model -> Html Msg
 view model =
     div []
         [ img [ src "/logo.svg" ] []
-        , h1 [] [ text "Your Elm App is working!" ]
+        , pdfViewer model.currentTime
+        ]
+
+
+pdfViewer : Posix -> Html Msg
+pdfViewer time =
+    div []
+        [ h1 [] [ text <| "Current time is " ++ (String.fromInt <| Time.posixToMillis time) ]
+        , div
+            [ id "viewer"
+            , css [ height (px 600), overflow hidden ]
+            ]
+            []
         ]
 
 
@@ -50,8 +71,8 @@ view model =
 main : Program () Model Msg
 main =
     Browser.element
-        { view =  view >> Html.Styled.toUnstyled
+        { view = view >> Html.Styled.toUnstyled
         , init = \_ -> init
         , update = update
-        , subscriptions = always Sub.none
+        , subscriptions = \_ -> Time.every 1000 CurrentTime
         }

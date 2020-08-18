@@ -11,5 +11,8 @@
     "test": "elm-app test"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@pdftron/webviewer": "^7.0.1"
+  }
 }
